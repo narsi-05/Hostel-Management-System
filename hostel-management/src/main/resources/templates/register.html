@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Register - HostelFind</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        body { background:linear-gradient(135deg,#1a3c5e 0%,#0f2744 100%); min-height:100vh;
+               display:flex; flex-direction:column; padding:2rem; }
+        .reg-wrap { flex:1; display:flex; align-items:center; justify-content:center; }
+        .reg-card { background:#fff; border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.3);
+                    width:100%; max-width:560px; overflow:hidden; }
+        .reg-header { background:linear-gradient(135deg,#1a3c5e,#2563a8); padding:2rem;
+                      text-align:center; color:#fff; }
+        .reg-header h1 { font-size:1.6rem; }
+        .reg-body { padding:2rem; }
+        .user-type-group { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.2rem; }
+        .type-card { border:2px solid #e2e8f0; border-radius:10px; padding:1rem;
+                     cursor:pointer; transition:all 0.2s; text-align:center; }
+        .type-card:hover, .type-card.selected { border-color:#1a3c5e; background:#eff6ff; }
+        .type-card input { display:none; }
+        .type-icon { font-size:1.8rem; margin-bottom:0.4rem; }
+        .type-label { font-weight:600; font-size:0.88rem; color:#1e293b; }
+        .type-desc { font-size:0.78rem; color:#64748b; margin-top:0.2rem; }
+    </style>
+</head>
+<body>
+<div class="reg-wrap">
+    <div class="reg-card">
+        <div class="reg-header">
+            <div style="font-size:2rem;margin-bottom:0.4rem">🏠</div>
+            <h1>Create Account</h1>
+            <p style="opacity:0.8;font-size:0.88rem">Join HostelFind today</p>
+        </div>
+        <div class="reg-body">
+            <div class="alert alert-danger" th:if="${errorMessage}"   th:text="${errorMessage}"></div>
+            <div class="alert alert-danger" th:if="${passwordError}"  th:text="${passwordError}"></div>
+
+            <form th:action="@{/register}" method="post" th:object="${user}">
+
+                <!-- User Type Selection -->
+                <div class="form-group">
+                    <label class="form-label">Select Account Type</label>
+                    <div class="user-type-group">
+                        <label class="type-card" id="ownerCard">
+                            <input type="radio" name="userType" value="OWNER" required/>
+                            <div class="type-icon">🏢</div>
+                            <div class="type-label">Hostel Owner</div>
+                            <div class="type-desc">List your hostel</div>
+                        </label>
+                        <label class="type-card" id="visitorCard">
+                            <input type="radio" name="userType" value="VISITOR"/>
+                            <div class="type-icon">🧳</div>
+                            <div class="type-label">Visitor</div>
+                            <div class="type-desc">Find a hostel</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        <input class="form-control" th:field="*{firstName}" type="text"
+                               placeholder="First name" required/>
+                        <span class="invalid-feedback" th:errors="*{firstName}"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        <input class="form-control" th:field="*{lastName}" type="text"
+                               placeholder="Last name" required/>
+                        <span class="invalid-feedback" th:errors="*{lastName}"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">📧 Email Address</label>
+                    <input class="form-control" th:field="*{email}" type="email"
+                           placeholder="your@email.com" required/>
+                    <span class="invalid-feedback" th:errors="*{email}"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">📱 Phone Number (10 digits)</label>
+                    <input class="form-control" th:field="*{phoneNumber}" type="tel"
+                           placeholder="9876543210" pattern="[6-9][0-9]{9}" required/>
+                    <span class="invalid-feedback" th:errors="*{phoneNumber}"></span>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">🔒 New Password</label>
+                        <input class="form-control" th:field="*{password}" type="password"
+                               placeholder="Min 6 characters" minlength="6" required/>
+                        <span class="invalid-feedback" th:errors="*{password}"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">🔒 Confirm Password</label>
+                        <input class="form-control" type="password" name="confirmPassword"
+                               placeholder="Repeat password" required/>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 btn-lg">Create Account</button>
+            </form>
+
+            <div style="text-align:center;margin-top:1.2rem;font-size:0.9rem">
+                Already Registered?
+                <a th:href="@{/login}" style="color:#2563a8;font-weight:600">Go to Login Page</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.querySelectorAll('.type-card input').forEach(radio => {
+        radio.addEventListener('change', () => {
+            document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+            radio.closest('.type-card').classList.add('selected');
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Manage Hostels - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">🏠 Hostel<span>Find</span></a>
+    <div class="nav-links">
+        <a class="nav-link" th:href="@{/admin/dashboard}">Dashboard</a>
+        <a class="nav-link" th:href="@{/admin/users}">Users</a>
+        <a class="nav-link active" th:href="@{/admin/hostels}">Hostels</a>
+        <a class="nav-link btn-nav" th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>All Hostels</h1>
+        <p>View and manage all registered hostels</p>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th><th>Hostel Name</th><th>Owner</th><th>Type</th>
+                    <th>Location</th><th>Sharing</th><th>Amount</th>
+                    <th>Rating</th><th>Status</th><th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="h, i : ${hostels}">
+                    <td th:text="${i.count}"></td>
+                    <td><strong th:text="${h.hostelName}"></strong></td>
+                    <td th:text="${h.owner.fullName}"></td>
+                    <td th:text="${h.hostelType.displayName}"></td>
+                    <td th:text="${h.location}"></td>
+                    <td th:text="${h.sharingType.displayName}"></td>
+                    <td>₹<span th:text="${h.amountPerMonth}"></span></td>
+                    <td>⭐ <span th:text="${#numbers.formatDecimal(h.averageRating,1,1)}"></span></td>
+                    <td>
+                        <span class="badge badge-success" th:if="${h.status.name() == 'ACTIVE'}">Active</span>
+                        <span class="badge badge-danger" th:unless="${h.status.name() == 'ACTIVE'}">Inactive</span>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <a th:href="@{'/admin/hostels/' + ${h.id}}" class="btn btn-outline btn-sm">View</a>
+                            <form th:action="@{'/admin/hostels/' + ${h.id} + '/delete'}" method="post"
+                                  onsubmit="return confirm('Delete this hostel?')">
+                                <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(hostels)}">
+                    <td colspan="10" class="text-center">No hostels registered yet.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<footer><p>© 2024 HostelFind Admin Panel</p></footer>
+</body>
+</html>

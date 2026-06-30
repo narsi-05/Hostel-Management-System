@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Saved Hostels - HostelFind</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">🏠 Hostel<span>Find</span></a>
+    <div class="nav-links">
+        <a class="nav-link" th:href="@{/visitor/dashboard}">Dashboard</a>
+        <a class="nav-link" th:href="@{/visitor/search}">Search</a>
+        <a class="nav-link active" th:href="@{/visitor/saved}">Saved</a>
+        <a class="nav-link" th:href="@{/visitor/messages}">Messages</a>
+        <a class="nav-link btn-nav" th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>❤️ Saved Hostels</h1>
+        <p>Your shortlisted hostels</p>
+    </div>
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div class="grid-3" th:if="${not #lists.isEmpty(savedHostels)}">
+        <div class="card hostel-card" th:each="s : ${savedHostels}">
+            <div th:if="${s.hostel.photos != null and !s.hostel.photos.isEmpty()}">
+                <img class="card-img" th:src="@{'/uploads/' + ${s.hostel.photoArray[0]}}" th:alt="${s.hostel.hostelName}"/>
+            </div>
+            <div th:unless="${s.hostel.photos != null and !s.hostel.photos.isEmpty()}" class="hostel-img-placeholder">🏠</div>
+            <span class="hostel-type-badge" th:text="${s.hostel.hostelType.displayName}"></span>
+            <div class="card-body">
+                <div class="hostel-name" th:text="${s.hostel.hostelName}"></div>
+                <div class="hostel-location">📍 <span th:text="${s.hostel.location}"></span></div>
+                <div class="d-flex justify-between align-center mt-1">
+                    <div class="hostel-price">₹<span th:text="${s.hostel.amountPerMonth}"></span><span>/mo</span></div>
+                    <div class="star-rating">⭐ <span th:text="${#numbers.formatDecimal(s.hostel.averageRating,1,1)}"></span></div>
+                </div>
+                <div class="d-flex gap-1 mt-2">
+                    <a th:href="@{'/visitor/hostel/' + ${s.hostel.id}}" class="btn btn-primary btn-sm" style="flex:1">View</a>
+                    <form th:action="@{'/visitor/hostel/' + ${s.hostel.id} + '/unsave'}" method="post">
+                        <button class="btn btn-danger btn-sm" type="submit">💔</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:if="${#lists.isEmpty(savedHostels)}" class="card text-center">
+        <div class="card-body">
+            <div style="font-size:3rem;margin-bottom:1rem">❤️</div>
+            <h3>No Saved Hostels</h3>
+            <p>Browse hostels and save your favourites for easy access.</p>
+            <a th:href="@{/visitor/search}" class="btn btn-accent mt-2">Browse Hostels</a>
+        </div>
+    </div>
+</div>
+<footer><p>© 2024 HostelFind</p></footer>
+</body>
+</html>

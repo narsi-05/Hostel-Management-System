@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>User Detail - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">🏠 Hostel<span>Find</span></a>
+    <div class="nav-links">
+        <a class="nav-link" th:href="@{/admin/dashboard}">Dashboard</a>
+        <a class="nav-link active" th:href="@{/admin/users}">Users</a>
+        <a class="nav-link btn-nav" th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+<div class="page-wrapper">
+    <div class="d-flex justify-between align-center mb-3">
+        <h1 th:text="${user.fullName}"></h1>
+        <a th:href="@{/admin/users}" class="btn btn-outline">← Back to Users</a>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+        <div class="card">
+            <div class="card-body">
+                <h3 style="margin-bottom:1rem;color:#1a3c5e">User Information</h3>
+                <table style="width:100%">
+                    <tr style="border-bottom:1px solid #e2e8f0"><td style="padding:.7rem;font-weight:600;color:#64748b;width:140px">First Name</td><td style="padding:.7rem" th:text="${user.firstName}"></td></tr>
+                    <tr style="border-bottom:1px solid #e2e8f0"><td style="padding:.7rem;font-weight:600;color:#64748b">Last Name</td><td style="padding:.7rem" th:text="${user.lastName}"></td></tr>
+                    <tr style="border-bottom:1px solid #e2e8f0"><td style="padding:.7rem;font-weight:600;color:#64748b">Email</td><td style="padding:.7rem" th:text="${user.email}"></td></tr>
+                    <tr style="border-bottom:1px solid #e2e8f0"><td style="padding:.7rem;font-weight:600;color:#64748b">Phone</td><td style="padding:.7rem" th:text="${user.phoneNumber}"></td></tr>
+                    <tr style="border-bottom:1px solid #e2e8f0"><td style="padding:.7rem;font-weight:600;color:#64748b">Type</td><td style="padding:.7rem"><span class="badge badge-info" th:text="${user.userType}"></span></td></tr>
+                    <tr style="border-bottom:1px solid #e2e8f0"><td style="padding:.7rem;font-weight:600;color:#64748b">Status</td><td style="padding:.7rem"><span class="badge badge-success" th:if="${user.status.name() == 'ACTIVE'}">Active</span><span class="badge badge-danger" th:unless="${user.status.name() == 'ACTIVE'}">Blocked</span></td></tr>
+                    <tr><td style="padding:.7rem;font-weight:600;color:#64748b">Joined</td><td style="padding:.7rem" th:text="${#temporals.format(user.createdAt,'dd MMM yyyy')}"></td></tr>
+                </table>
+                <div class="d-flex gap-1 mt-3">
+                    <form th:if="${user.status.name() == 'ACTIVE'}"
+                          th:action="@{'/admin/users/' + ${user.id} + '/block'}" method="post">
+                        <button class="btn btn-danger" type="submit">Block User</button>
+                    </form>
+                    <form th:unless="${user.status.name() == 'ACTIVE'}"
+                          th:action="@{'/admin/users/' + ${user.id} + '/unblock'}" method="post">
+                        <button class="btn btn-success" type="submit">Unblock User</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="card" th:if="${user.userType.name() == 'OWNER'}">
+            <div class="card-body">
+                <h3 style="margin-bottom:1rem;color:#1a3c5e">Hostels by this Owner</h3>
+                <div th:if="${not #lists.isEmpty(user.hostels)}">
+                    <div th:each="h : ${user.hostels}" style="border-bottom:1px solid #e2e8f0;padding:.7rem 0">
+                        <div><strong th:text="${h.hostelName}"></strong></div>
+                        <div style="font-size:.85rem;color:#64748b" th:text="${h.location}"></div>
+                        <div style="font-size:.85rem">₹<span th:text="${h.amountPerMonth}"></span>/mo</div>
+                    </div>
+                </div>
+                <div th:if="${#lists.isEmpty(user.hostels)}" style="color:#94a3b8">No hostels added yet.</div>
+            </div>
+        </div>
+    </div>
+</div>
+<footer><p>© 2024 HostelFind Admin Panel</p></footer>
+</body>
+</html>

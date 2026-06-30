@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Login - HostelFind</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        body { background: linear-gradient(135deg, #1a3c5e 0%, #0f2744 100%); min-height: 100vh;
+               display: flex; flex-direction: column; }
+        .login-wrap { flex:1; display:flex; align-items:center; justify-content:center; padding:2rem; }
+        .login-card { background:#fff; border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.3);
+                      width:100%; max-width:440px; overflow:hidden; }
+        .login-header { background:linear-gradient(135deg,#1a3c5e,#2563a8); padding:2.5rem 2rem;
+                        text-align:center; color:#fff; }
+        .login-header h1 { font-size:1.8rem; margin-bottom:0.3rem; }
+        .login-header p { opacity:0.8; font-size:0.9rem; }
+        .login-body { padding:2rem; }
+        .divider { text-align:center; margin:1rem 0; color:#94a3b8; font-size:0.85rem; }
+        .admin-hint { background:#fffbeb; border:1px solid #f59e0b; border-radius:8px;
+                      padding:0.8rem; font-size:0.82rem; color:#92400e; margin-bottom:1rem; }
+    </style>
+</head>
+<body>
+<div class="login-wrap">
+    <div class="login-card">
+        <div class="login-header">
+            <div style="font-size:2.5rem;margin-bottom:0.5rem">🏠</div>
+            <h1>HostelFind</h1>
+            <p>Sign in to your account</p>
+        </div>
+        <div class="login-body">
+
+            <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
+            <div class="alert alert-danger"  th:if="${errorMessage}"   th:text="${errorMessage}"></div>
+
+            <div class="admin-hint">
+                
+             
+            </div>
+
+            <form th:action="@{/login}" method="post">
+                <div class="form-group">
+                    <label class="form-label">📧 Email or Phone Number</label>
+                    <input class="form-control" type="text" name="emailOrPhone"
+                           placeholder="Enter email or phone" required/>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">🔒 Password</label>
+                    <input class="form-control" type="password" name="password"
+                           placeholder="Enter your password" required/>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 btn-lg">Login</button>
+            </form>
+
+            <div class="divider">— New to HostelFind? —</div>
+            <a th:href="@{/register}" class="btn btn-outline w-100">Create an Account</a>
+            <div style="text-align:center;margin-top:1rem">
+                <a th:href="@{/}" style="color:#2563a8;font-size:0.88rem">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
