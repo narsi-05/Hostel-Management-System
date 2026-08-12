@@ -69,12 +69,13 @@ public class SecurityConfig {
                 .successHandler((request, response, authentication) -> {
                     var authorities = authentication.getAuthorities();
                     String role = authorities.iterator().next().getAuthority();
+                    String contextPath = request.getContextPath();
                     if (role.equals("ROLE_ADMIN")) {
-                        response.sendRedirect("/hostel/admin/dashboard");
+                        response.sendRedirect(contextPath + "/admin/dashboard");
                     } else if (role.equals("ROLE_OWNER")) {
-                        response.sendRedirect("/hostel/owner/dashboard");
+                        response.sendRedirect(contextPath + "/owner/dashboard");
                     } else {
-                        response.sendRedirect("/hostel/visitor/dashboard");
+                        response.sendRedirect(contextPath + "/visitor/dashboard");
                     }
                 })
                 .failureUrl("/login?error=true")
