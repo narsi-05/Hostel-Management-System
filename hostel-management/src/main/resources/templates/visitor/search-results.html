@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Search Results - HostelFind</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">🏠 Hostel<span>Find</span></a>
+    <div class="nav-links">
+        <a class="nav-link" th:href="@{/visitor/dashboard}">Dashboard</a>
+        <a class="nav-link active" th:href="@{/visitor/search}">Search</a>
+        <a class="nav-link" th:href="@{/visitor/saved}">Saved</a>
+        <a class="nav-link" th:href="@{/visitor/messages}">Messages</a>
+        <a class="nav-link btn-nav" th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>🔍 Search Hostels</h1>
+        <p>Find the perfect hostel for your stay</p>
+    </div>
+
+    <!-- Search Bar -->
+    <form th:action="@{/visitor/search}" method="get" class="search-bar">
+        <input class="form-control" type="text" name="location"
+               th:value="${searchLocation}" placeholder="Enter city or area..."/>
+        <select class="form-control" name="type">
+            <option value="">All Types</option>
+            <option th:each="t : ${hostelTypes}" th:value="${t}"
+                    th:text="${t.displayName}"
+                    th:selected="${t.name() == searchType}"></option>
+        </select>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <div class="section-title d-flex justify-between align-center">
+        <div>
+            <h2 th:if="${not #lists.isEmpty(hostels)}">
+                <span th:text="${#lists.size(hostels)}"></span> Hostel(s) Found
+                <span th:if="${searchLocation != null and !searchLocation.isEmpty()}">
+                    in "<span th:text="${searchLocation}"></span>"
+                </span>
+            </h2>
+            <h2 th:if="${#lists.isEmpty(hostels)}">No Hostels Found</h2>
+        </div>
+    </div>
+
+    <div class="grid-3" th:if="${not #lists.isEmpty(hostels)}">
+        <div class="card hostel-card" th:each="h : ${hostels}">
+            <div th:if="${h.photos != null and !h.photos.isEmpty()}">
+                <img class="card-img" th:src="@{'/uploads/' + ${h.photoArray[0]}}" th:alt="${h.hostelName}"/>
+            </div>
+            <div th:unless="${h.photos != null and !h.photos.isEmpty()}" class="hostel-img-placeholder">🏠</div>
+            <span class="hostel-badge" th:text="${h.sharingType.displayName}"></span>
+            <span class="hostel-type-badge" th:text="${h.hostelType.displayName}"></span>
+            <div class="card-body">
+                <div class="hostel-name" th:text="${h.hostelName}"></div>
+                <div class="hostel-location">📍 <span th:text="${h.location}"></span></div>
+                <div class="d-flex justify-between align-center mt-1">
+                    <div class="hostel-price">₹<span th:text="${h.amountPerMonth}"></span><span>/mo</span></div>
+                    <div class="star-rating">⭐ <span th:text="${#numbers.formatDecimal(h.averageRating,1,1)}"></span>
+                        (<span th:text="${h.totalReviews}"></span>)
+                    </div>
+                </div>
+                <div style="font-size:.82rem;color:#64748b;margin-top:.4rem">
+                    🏠 <span th:text="${h.availability.displayName}"></span>
+                </div>
+                <a th:href="@{'/visitor/hostel/' + ${h.id}}" class="btn btn-primary btn-sm w-100 mt-2">View Details</a>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(hostels)}" class="card text-center">
+        <div class="card-body">
+            <div style="font-size:3rem;margin-bottom:1rem">😔</div>
+            <h3>No Hostels Found</h3>
+            <p>Try a different location or hostel type.</p>
+            <a th:href="@{/visitor/dashboard}" class="btn btn-primary mt-2">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+<footer><p>© 2024 HostelFind</p></footer>
+</body>
+</html>

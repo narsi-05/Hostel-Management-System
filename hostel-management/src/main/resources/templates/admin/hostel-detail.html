@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Hostel Detail - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">🏠 Hostel<span>Find</span></a>
+    <div class="nav-links">
+        <a class="nav-link" th:href="@{/admin/dashboard}">Dashboard</a>
+        <a class="nav-link" th:href="@{/admin/users}">Users</a>
+        <a class="nav-link active" th:href="@{/admin/hostels}">Hostels</a>
+        <a class="nav-link btn-nav" th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+<div class="page-wrapper">
+    <div class="d-flex justify-between align-center mb-3">
+        <div>
+            <h1 th:text="${hostel.hostelName}"></h1>
+            <p>Hostel Details — Admin View</p>
+        </div>
+        <div class="d-flex gap-1">
+            <form th:action="@{'/admin/hostels/' + ${hostel.id} + '/delete'}" method="post"
+                  onsubmit="return confirm('Delete this hostel permanently?')">
+                <button class="btn btn-danger" type="submit">🗑️ Delete Hostel</button>
+            </form>
+            <a th:href="@{/admin/hostels}" class="btn btn-outline">← Back</a>
+        </div>
+    </div>
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem">
+        <div class="card">
+            <div class="card-body">
+                <h3 style="margin-bottom:1rem;color:#1a3c5e">Hostel Information</h3>
+                <table style="width:100%">
+                    <tr style="border-bottom:1px solid #e2e8f0"><td style="padding:.7rem;font-weight:600;color:#64748b;width:160px">Hostel Name</td><td style="padding:.7rem" th:text="${hostel.hostelName}"></td></tr>
+                    <tr style="border-bottom:1px solid #e2e8f0"><td style="padding:.7rem;font-weight:600;color:#64748b">Type</td><td style="padding:.7rem" th:text="${hostel.hostelType.displayName}"></td></tr>
+                    <tr style="border-bottom:1px solid #e2e8f0"><td style="padding:.7rem;font-weight:600;color:#64748b">Location</td><td style="padding:.7rem" th:text="${hostel.location}"></td></tr>
+                    <tr style="border-bottom:1px solid #e2e8f0"><td style="padding:.7rem;font-weight:600;color:#64748b">City</td><td style="padding:.7rem" th:text="${hostel.city}"></td></tr>
+                    <tr style="border-bottom:1px solid #e2e8f0"><td style="padding:.7rem;font-weight:600;color:#64748b">Availability</td><td style="padding:.7rem" th:text="${hostel.availability.displayName}"></td></tr>
+                    <tr style="border-bottom:1px solid #e2e8f0"><td style="padding:.7rem;font-weight:600;color:#64748b">Sharing</td><td style="padding:.7rem" th:text="${hostel.sharingType.displayName}"></td></tr>
+                    <tr style="border-bottom:1px solid #e2e8f0"><td style="padding:.7rem;font-weight:600;color:#64748b">Amount/Month</td><td style="padding:.7rem">₹<span th:text="${hostel.amountPerMonth}"></span></td></tr>
+                    <tr style="border-bottom:1px solid #e2e8f0"><td style="padding:.7rem;font-weight:600;color:#64748b">Phone</td><td style="padding:.7rem" th:text="${hostel.phoneNumber}"></td></tr>
+                    <tr style="border-bottom:1px solid #e2e8f0"><td style="padding:.7rem;font-weight:600;color:#64748b">Rating</td><td style="padding:.7rem">⭐ <span th:text="${#numbers.formatDecimal(hostel.averageRating,1,1)}"></span> (<span th:text="${hostel.totalReviews}"></span> reviews)</td></tr>
+                    <tr style="border-bottom:1px solid #e2e8f0"><td style="padding:.7rem;font-weight:600;color:#64748b">Status</td><td style="padding:.7rem"><span class="badge badge-success" th:if="${hostel.status.name() == 'ACTIVE'}">Active</span><span class="badge badge-danger" th:unless="${hostel.status.name() == 'ACTIVE'}">Inactive</span></td></tr>
+                    <tr><td style="padding:.7rem;font-weight:600;color:#64748b">Description</td><td style="padding:.7rem" th:text="${hostel.description}"></td></tr>
+                </table>
+            </div>
+        </div>
+        <div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h3 style="margin-bottom:1rem;color:#1a3c5e">Owner Details</h3>
+                    <p><strong>Name:</strong> <span th:text="${hostel.owner.fullName}"></span></p>
+                    <p style="margin-top:.4rem"><strong>Email:</strong> <span th:text="${hostel.owner.email}"></span></p>
+                    <p style="margin-top:.4rem"><strong>Phone:</strong> <span th:text="${hostel.owner.phoneNumber}"></span></p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h3 style="margin-bottom:1rem;color:#1a3c5e">Reviews (<span th:text="${#lists.size(reviews)}"></span>)</h3>
+                    <div th:if="${not #lists.isEmpty(reviews)}">
+                        <div th:each="r : ${reviews}" style="border-bottom:1px solid #e2e8f0;padding:.7rem 0">
+                            <div class="d-flex justify-between">
+                                <strong th:text="${r.visitor.fullName}"></strong>
+                                <span class="star-rating">⭐ <span th:text="${r.rating}"></span></span>
+                            </div>
+                            <p style="font-size:.85rem;margin-top:.3rem" th:text="${r.comment}"></p>
+                        </div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(reviews)}" style="color:#94a3b8;font-size:.9rem">No reviews.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<footer><p>© 2024 HostelFind Admin Panel</p></footer>
+</body>
+</html>

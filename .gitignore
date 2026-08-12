@@ -1,0 +1,26 @@
+# Maven build outputs
+**/target/
+**/*.war
+**/*.jar
+**/*.zip
+
+# IDEs and editors
+**/.settings/
+**/.classpath
+**/.project
+**/.factorypath
+**/.idea/
+**/*.iml
+**/.vscode/
+**/*.suo
+**/*.ntvs*
+**/*.njsproj
+**/*.sln
+**/*.swp
+
+# Log files
+**/*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db

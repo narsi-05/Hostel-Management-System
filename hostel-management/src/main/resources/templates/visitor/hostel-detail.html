@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${hostel.hostelName} + ' - HostelFind'">Hostel Detail</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <style>
+        .photo-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;margin-bottom:1.5rem}
+        .gallery-img{width:100%;height:160px;object-fit:cover;border-radius:10px;cursor:pointer}
+        .detail-grid{display:grid;grid-template-columns:2fr 1fr;gap:1.5rem}
+        @media(max-width:768px){.detail-grid{grid-template-columns:1fr}}
+        .info-row{display:flex;gap:.5rem;padding:.65rem 0;border-bottom:1px solid #e2e8f0;font-size:.92rem}
+        .info-label{font-weight:600;color:#64748b;min-width:140px}
+        .review-card{background:#f8fafc;border-radius:10px;padding:1rem;margin-bottom:.75rem}
+        .star-filled{color:#f59e0b}
+        .star-empty{color:#e2e8f0}
+
+        /* Interactive star picker for the review form */
+        .star-picker{display:flex;flex-direction:row-reverse;gap:.25rem;font-size:2rem;justify-content:flex-end}
+        .star-picker input{display:none}
+        .star-picker label{color:#e2e8f0;cursor:pointer;transition:color .15s;line-height:1}
+        .star-picker label:hover,
+        .star-picker label:hover ~ label{color:#f59e0b}
+        .star-picker input:checked ~ label{color:#f59e0b}
+        .rating-required-msg{font-size:.8rem;color:#dc2626;display:none;margin-top:.25rem}
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">🏠 Hostel<span>Find</span></a>
+    <div class="nav-links">
+        <a class="nav-link" th:href="@{/visitor/dashboard}">Dashboard</a>
+        <a class="nav-link" th:href="@{/visitor/search}">Search</a>
+        <a class="nav-link" th:href="@{/visitor/saved}">Saved</a>
+        <a class="nav-link btn-nav" th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+
+<div class="page-wrapper">
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <!-- Photo Gallery -->
+    <div th:if="${hostel.photos != null and !hostel.photos.isEmpty()}" class="photo-gallery">
+        <img th:each="p : ${hostel.photoArray}" class="gallery-img"
+             th:src="@{'/uploads/' + ${p}}" th:alt="${hostel.hostelName}"/>
+    </div>
+    <div th:unless="${hostel.photos != null and !hostel.photos.isEmpty()}"
+         class="hostel-img-placeholder" style="height:250px;border-radius:12px;margin-bottom:1.5rem;font-size:4rem">🏠</div>
+
+    <div class="detail-grid">
+        <!-- Left: Details -->
+        <div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-between align-center mb-2">
+                        <h1 style="font-size:1.8rem" th:text="${hostel.hostelName}"></h1>
+                        <div class="d-flex gap-1">
+                            <!-- Save/Unsave -->
+                            <form th:if="${!isSaved}" th:action="@{'/visitor/hostel/' + ${hostel.id} + '/save'}" method="post">
+                                <button class="btn btn-outline" type="submit">❤️ Save</button>
+                            </form>
+                            <form th:if="${isSaved}" th:action="@{'/visitor/hostel/' + ${hostel.id} + '/unsave'}" method="post">
+                                <button class="btn btn-danger" type="submit">💔 Unsave</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="d-flex align-center gap-2 mb-3">
+                        <span class="badge badge-info" th:text="${hostel.hostelType.displayName}"></span>
+                        <span class="badge badge-success" th:text="${hostel.availability.displayName}"></span>
+                        <span class="star-rating">⭐ <span th:text="${#numbers.formatDecimal(hostel.averageRating,1,1)}"></span>
+                            (<span th:text="${hostel.totalReviews}"></span> reviews)
+                        </span>
+                    </div>
+
+                    <div class="info-row"><span class="info-label">📍 Location</span><span th:text="${hostel.location}"></span></div>
+                    <div class="info-row" th:if="${hostel.city != null}"><span class="info-label">🏙️ City</span><span th:text="${hostel.city}"></span></div>
+                    <div class="info-row"><span class="info-label">🏠 Sharing Type</span><span th:text="${hostel.sharingType.displayName}"></span></div>
+                    <div class="info-row"><span class="info-label">💰 Amount/Month</span><strong style="color:#1a3c5e;font-size:1.1rem">₹<span th:text="${hostel.amountPerMonth}"></span></strong></div>
+                    <div class="info-row"><span class="info-label">📞 Contact</span><span th:text="${hostel.phoneNumber}"></span></div>
+
+                    <div th:if="${hostel.description != null and !hostel.description.isEmpty()}" class="mt-3">
+                        <h3>About This Hostel</h3>
+                        <p style="margin-top:.5rem" th:text="${hostel.description}"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h3 style="margin-bottom:1rem">⭐ Reviews & Ratings</h3>
+
+                    <!-- Add Review -->
+                    <div th:if="${!hasReviewed}" class="review-card" style="background:#fffbeb">
+                        <h4 style="margin-bottom:.75rem">Write a Review</h4>
+                        <form th:action="@{'/visitor/hostel/' + ${hostel.id} + '/review'}" method="post" onsubmit="return validateRatingForm(this)">
+                            <div class="form-group">
+                                <label class="form-label">Rating</label>
+                                <div class="star-picker">
+                                    <input type="radio" name="rating" value="5" id="star5"/><label for="star5" title="5 stars">★</label>
+                                    <input type="radio" name="rating" value="4" id="star4"/><label for="star4" title="4 stars">★</label>
+                                    <input type="radio" name="rating" value="3" id="star3"/><label for="star3" title="3 stars">★</label>
+                                    <input type="radio" name="rating" value="2" id="star2"/><label for="star2" title="2 stars">★</label>
+                                    <input type="radio" name="rating" value="1" id="star1"/><label for="star1" title="1 star">★</label>
+                                </div>
+                                <div class="rating-required-msg">Please select a star rating.</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Your Review</label>
+                                <textarea class="form-control" name="comment" rows="3"
+                                          placeholder="Share your experience..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-accent">Submit Review</button>
+                        </form>
+                        <script>
+                            function validateRatingForm(form) {
+                                var checked = form.querySelector('input[name="rating"]:checked');
+                                var msg = form.querySelector('.rating-required-msg');
+                                if (!checked) {
+                                    msg.style.display = 'block';
+                                    return false;
+                                }
+                                msg.style.display = 'none';
+                                return true;
+                            }
+                        </script>
+                    </div>
+                    <div th:if="${hasReviewed}" class="alert alert-info">✅ You have already reviewed this hostel.</div>
+
+                    <!-- Existing Reviews -->
+                    <div th:if="${not #lists.isEmpty(reviews)}" style="margin-top:1rem">
+                        <div class="review-card" th:each="r : ${reviews}">
+                            <div class="d-flex justify-between align-center">
+                                <strong th:text="${r.visitor.fullName}"></strong>
+                                <span class="star-rating">
+                                    <span th:each="i : ${#numbers.sequence(1, r.rating)}">⭐</span>
+                                </span>
+                            </div>
+                            <p style="margin-top:.4rem;font-size:.9rem" th:text="${r.comment}"></p>
+                            <div style="font-size:.75rem;color:#94a3b8;margin-top:.3rem"
+                                 th:text="${#temporals.format(r.createdAt,'dd MMM yyyy')}"></div>
+                        </div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(reviews)}" style="color:#94a3b8;font-size:.9rem;margin-top:.5rem">
+                        No reviews yet. Be the first to review!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Contact Owner -->
+        <div>
+            <div class="card" style="position:sticky;top:80px">
+                <div class="card-body">
+                    <h3 style="margin-bottom:1rem">💬 Contact Owner</h3>
+                    <div style="text-align:center;margin-bottom:1rem">
+                        <div style="width:60px;height:60px;border-radius:50%;background:#1a3c5e;color:#fff;
+                             display:flex;align-items:center;justify-content:center;font-size:1.5rem;
+                             font-weight:700;margin:0 auto .5rem"
+                             th:text="${hostel.owner.firstName.charAt(0)}"></div>
+                        <div style="font-weight:700" th:text="${hostel.owner.fullName}"></div>
+                        <div style="font-size:.82rem;color:#64748b">Hostel Owner</div>
+                    </div>
+                    <div class="mb-2">
+                        <a th:href="'tel:' + ${hostel.phoneNumber}" class="btn btn-success w-100">
+                            📞 Call: <span th:text="${hostel.phoneNumber}"></span>
+                        </a>
+                    </div>
+                    <form th:action="@{'/visitor/hostel/' + ${hostel.id} + '/contact'}" method="post">
+                        <div class="form-group">
+                            <textarea class="form-control" name="message" rows="4"
+                                      placeholder="Hi, I'm interested in your hostel..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a th:href="@{/visitor/search}" class="btn btn-outline">← Back to Search</a>
+</div>
+<footer><p>© 2024 HostelFind</p></footer>
+</body>
+</html>

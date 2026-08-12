@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Edit Hostel - HostelFind</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">🏠 Hostel<span>Find</span></a>
+    <div class="nav-links">
+        <a class="nav-link" th:href="@{/owner/dashboard}">← Dashboard</a>
+        <a class="nav-link btn-nav" th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+<div class="page-wrapper">
+    <div class="form-card" style="max-width:720px">
+        <div class="page-header text-center">
+            <h1>✏️ Edit Hostel</h1>
+            <p>Update your hostel details</p>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+        <div class="card">
+            <div class="card-body">
+                <form th:action="@{'/owner/hostel/edit/' + ${hostel.id}}" method="post"
+                      enctype="multipart/form-data" th:object="${hostel}">
+
+                    <h3 style="margin-bottom:1rem;color:#1a3c5e">📋 Basic Details</h3>
+                    <div class="form-group">
+                        <label class="form-label">Hostel Name *</label>
+                        <input class="form-control" th:field="*{hostelName}" type="text" required/>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Hostel Type *</label>
+                            <select class="form-control" th:field="*{hostelType}" required>
+                                <option th:each="t : ${hostelTypes}" th:value="${t}"
+                                        th:text="${t.displayName}" th:selected="${t == hostel.hostelType}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Availability *</label>
+                            <select class="form-control" th:field="*{availability}" required>
+                                <option th:each="a : ${availabilities}" th:value="${a}"
+                                        th:text="${a.displayName}" th:selected="${a == hostel.availability}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h3 style="margin:1.2rem 0 1rem;color:#1a3c5e">📍 Location</h3>
+                    <div class="form-group">
+                        <label class="form-label">Full Address / Location *</label>
+                        <input class="form-control" th:field="*{location}" type="text" required/>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">City</label>
+                            <input class="form-control" th:field="*{city}" type="text"/>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">State</label>
+                            <input class="form-control" th:field="*{state}" type="text"/>
+                        </div>
+                    </div>
+
+                    <h3 style="margin:1.2rem 0 1rem;color:#1a3c5e">💰 Pricing & Sharing</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Sharing Type *</label>
+                            <select class="form-control" th:field="*{sharingType}" required>
+                                <option th:each="s : ${sharingTypes}" th:value="${s}"
+                                        th:text="${s.displayName}" th:selected="${s == hostel.sharingType}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Amount per Month (₹) *</label>
+                            <input class="form-control" th:field="*{amountPerMonth}"
+                                   type="number" min="0" step="100" required/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">📞 Contact Phone *</label>
+                        <input class="form-control" th:field="*{phoneNumber}" type="tel"
+                               pattern="[6-9][0-9]{9}" required/>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">📝 Description</label>
+                        <textarea class="form-control" th:field="*{description}" rows="4"></textarea>
+                    </div>
+
+                    <!-- Current Photos -->
+                    <div th:if="${hostel.photos != null and !hostel.photos.isEmpty()}" class="form-group">
+                        <label class="form-label">🖼️ Current Hostel Photos (Check to delete)</label>
+                        <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.5rem;">
+                            <div th:each="p : ${hostel.photoArray}" style="text-align:center; border:1px solid #e2e8f0; padding:0.5rem; border-radius:8px; background:#f8fafc;">
+                                <img th:src="@{'/uploads/' + ${p}}" style="width:100px; height:80px; object-fit:cover; border-radius:6px; display:block; margin-bottom:0.5rem;"/>
+                                <label style="font-size:0.85rem; cursor:pointer; color:#dc2626;">
+                                    <input type="checkbox" name="deletePhotos" th:value="${p}"/> Remove
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add New Photos -->
+                    <h3 style="margin:1.2rem 0 1rem;color:#1a3c5e">📸 Upload Additional Photos</h3>
+                    <div class="form-group">
+                        <input class="form-control" type="file" name="imageFiles" multiple accept="image/*"/>
+                        <small style="color:#64748b;display:block;margin-top:0.25rem;">Select additional images to add to the hostel gallery.</small>
+                    </div>
+
+                    <div class="mt-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-accent btn-lg">💾 Save Changes</button>
+                        <a th:href="@{/owner/dashboard}" class="btn btn-outline btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<footer><p>© 2024 HostelFind</p></footer>
+</body>
+</html>

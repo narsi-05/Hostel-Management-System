@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Messages - Visitor</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <style>
+        .msg-item{background:#fff;border-radius:10px;box-shadow:var(--shadow);padding:1rem 1.2rem;display:flex;gap:1rem;align-items:flex-start;margin-bottom:.75rem}
+        .msg-avatar{width:44px;height:44px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0}
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">🏠 Hostel<span>Find</span></a>
+    <div class="nav-links">
+        <a class="nav-link" th:href="@{/visitor/dashboard}">Dashboard</a>
+        <a class="nav-link" th:href="@{/visitor/search}">Search</a>
+        <a class="nav-link active">Messages</a>
+        <a class="nav-link btn-nav" th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>💬 Messages</h1>
+        <p>Your conversations with hostel owners</p>
+    </div>
+    <div th:if="${not #lists.isEmpty(messages)}">
+        <div class="msg-item" th:each="msg : ${messages}">
+            <div class="msg-avatar" th:text="${msg.sender.firstName.charAt(0)}"></div>
+            <div style="flex:1">
+                <div style="font-weight:700" th:text="${msg.sender.fullName}"></div>
+                <div style="font-size:.8rem;color:#64748b" th:if="${msg.hostel != null}">
+                    Re: <span th:text="${msg.hostel.hostelName}"></span>
+                </div>
+                <div style="font-size:.9rem;margin-top:.3rem" th:text="${msg.content}"></div>
+                <div style="font-size:.75rem;color:#94a3b8;margin-top:.3rem"
+                     th:text="${#temporals.format(msg.sentAt,'dd MMM yyyy, hh:mm a')}"></div>
+                <div th:if="${msg.sender.id == visitor.id}"
+                     style="font-size:.78rem;color:#94a3b8;margin-top:.2rem">✉️ Sent by you</div>
+            </div>
+        </div>
+    </div>
+    <div th:if="${#lists.isEmpty(messages)}" class="card text-center">
+        <div class="card-body">
+            <div style="font-size:3rem;margin-bottom:1rem">💬</div>
+            <h3>No Messages Yet</h3>
+            <p>Contact a hostel owner from any hostel detail page.</p>
+            <a th:href="@{/visitor/search}" class="btn btn-accent mt-2">Find Hostels</a>
+        </div>
+    </div>
+</div>
+<footer><p>© 2024 HostelFind</p></footer>
+</body>
+</html>

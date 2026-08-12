@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Visitor Dashboard - HostelFind</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">🏠 Hostel<span>Find</span></a>
+    <div class="nav-links">
+        <a class="nav-link" th:href="@{/visitor/dashboard}">Dashboard</a>
+        <a class="nav-link" th:href="@{/visitor/search}">Search</a>
+        <a class="nav-link" th:href="@{/visitor/saved}">Saved</a>
+        <a class="nav-link" th:href="@{/visitor/messages}">
+            Messages
+            <span th:if="${unreadMessages > 0}"
+                  style="background:#ef4444;color:#fff;border-radius:50%;padding:0 6px;font-size:.75rem;margin-left:4px"
+                  th:text="${unreadMessages}"></span>
+        </a>
+        <a class="nav-link" th:href="@{/visitor/profile}">Profile</a>
+        <a class="nav-link btn-nav" th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+
+<div class="page-wrapper">
+    <div class="sidebar-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-avatar" th:text="${visitor.firstName.charAt(0)}"></div>
+                <div class="sidebar-name" th:text="${visitor.fullName}"></div>
+                <div class="sidebar-role">Visitor</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link active" th:href="@{/visitor/dashboard}">
+                    <span class="icon">🏠</span> Dashboard
+                </a>
+                <a class="sidebar-link" th:href="@{/visitor/search}">
+                    <span class="icon">🔍</span> Search Hostels
+                </a>
+                <a class="sidebar-link" th:href="@{/visitor/saved}">
+                    <span class="icon">❤️</span> Saved Hostels
+                    <span th:if="${savedCount > 0}"
+                          style="margin-left:auto;background:#f59e0b;color:#fff;border-radius:20px;padding:0 6px;font-size:.75rem"
+                          th:text="${savedCount}"></span>
+                </a>
+                <a class="sidebar-link" th:href="@{/visitor/messages}">
+                    <span class="icon">💬</span> Messages
+                    <span th:if="${unreadMessages > 0}"
+                          style="margin-left:auto;background:#ef4444;color:#fff;border-radius:50%;padding:0 6px;font-size:.75rem"
+                          th:text="${unreadMessages}"></span>
+                </a>
+                <a class="sidebar-link" th:href="@{/visitor/profile}">
+                    <span class="icon">👤</span> Profile
+                </a>
+                <a class="sidebar-link" th:href="@{/logout}">
+                    <span class="icon">🚪</span> Logout
+                </a>
+            </nav>
+        </aside>
+
+        <main>
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+            <div class="page-header d-flex justify-between align-center">
+                <div>
+                    <h1>Welcome, <span th:text="${visitor.firstName}"></span>!</h1>
+                    <p>Find your perfect hostel stay</p>
+                </div>
+                <a th:href="@{/visitor/search}" class="btn btn-accent">🔍 Search Hostels</a>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid-3 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon blue">❤️</div>
+                    <div>
+                        <div class="stat-value" th:text="${savedCount}">0</div>
+                        <div class="stat-label">Saved Hostels</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon amber">💬</div>
+                    <div>
+                        <div class="stat-value" th:text="${unreadMessages}">0</div>
+                        <div class="stat-label">Unread Messages</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">📞</div>
+                    <div>
+                        <div class="stat-value" th:text="${visitor.phoneNumber}">-</div>
+                        <div class="stat-label">Your Number</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search bar -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h3 style="margin-bottom:1rem">🔍 Quick Search</h3>
+                    <form th:action="@{/visitor/search}" method="get" class="search-bar" style="box-shadow:none;padding:0;margin:0">
+                        <input class="form-control" type="text" name="location"
+                               placeholder="Enter city or area..."/>
+                        <select class="form-control" name="type">
+                            <option value="">All Types</option>
+                            <option th:each="t : ${hostelTypes}" th:value="${t}" th:text="${t.displayName}"></option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Latest Hostels -->
+            <div class="section-title">
+                <h2>Latest Hostels</h2>
+            </div>
+            <div class="grid-2" th:if="${not #lists.isEmpty(hostels)}">
+                <div class="card hostel-card" th:each="h : ${hostels}">
+                    <div th:if="${h.photos != null and !h.photos.isEmpty()}">
+                        <img class="card-img" th:src="@{'/uploads/' + ${h.photoArray[0]}}" th:alt="${h.hostelName}"/>
+                    </div>
+                    <div th:unless="${h.photos != null and !h.photos.isEmpty()}" class="hostel-img-placeholder">🏠</div>
+                    <span class="hostel-badge" th:text="${h.sharingType.displayName}"></span>
+                    <span class="hostel-type-badge" th:text="${h.hostelType.displayName}"></span>
+                    <div class="card-body">
+                        <div class="hostel-name" th:text="${h.hostelName}"></div>
+                        <div class="hostel-location">📍 <span th:text="${h.location}"></span></div>
+                        <div class="d-flex justify-between align-center mt-1">
+                            <div class="hostel-price">₹<span th:text="${h.amountPerMonth}"></span><span>/mo</span></div>
+                            <div class="star-rating">⭐ <span th:text="${#numbers.formatDecimal(h.averageRating,1,1)}"></span></div>
+                        </div>
+                        <a th:href="@{'/visitor/hostel/' + ${h.id}}" class="btn btn-primary btn-sm w-100 mt-2">View Details</a>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(hostels)}" class="card text-center">
+                <div class="card-body">
+                    <div style="font-size:3rem;margin-bottom:1rem">🔍</div>
+                    <h3>No Hostels Available</h3>
+                    <p>Check back later or try searching different cities.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<footer><p>© 2024 HostelFind</p></footer>
+</body>
+</html>

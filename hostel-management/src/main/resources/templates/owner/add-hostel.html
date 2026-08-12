@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Add Hostel - HostelFind</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">🏠 Hostel<span>Find</span></a>
+    <div class="nav-links">
+        <a class="nav-link" th:href="@{/owner/dashboard}">← Back to Dashboard</a>
+        <a class="nav-link btn-nav" th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+
+<div class="page-wrapper">
+    <div class="form-card" style="max-width:720px">
+        <div class="page-header text-center">
+            <h1>Add New Hostel</h1>
+            <p>Fill in the details to list your hostel</p>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+        <div class="card">
+            <div class="card-body">
+                <form th:action="@{/owner/hostel/add}" method="post"
+                      enctype="multipart/form-data" th:object="${hostel}">
+
+                    <!-- Basic Details -->
+                    <h3 style="margin-bottom:1rem;color:#1a3c5e">📋 Basic Details</h3>
+
+                    <div class="form-group">
+                        <label class="form-label">Hostel Name *</label>
+                        <input class="form-control" th:field="*{hostelName}" type="text"
+                               placeholder="e.g. Sunrise Boys Hostel" required/>
+                        <span class="invalid-feedback" th:errors="*{hostelName}"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Hostel Type *</label>
+                            <select class="form-control" th:field="*{hostelType}" required>
+                                <option value="">-- Select Type --</option>
+                                <option th:each="type : ${hostelTypes}"
+                                        th:value="${type}"
+                                        th:text="${type.displayName}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Availability *</label>
+                            <select class="form-control" th:field="*{availability}" required>
+                                <option value="">-- Select --</option>
+                                <option th:each="a : ${availabilities}"
+                                        th:value="${a}"
+                                        th:text="${a.displayName}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Location -->
+                    <h3 style="margin:1.2rem 0 1rem;color:#1a3c5e">📍 Location</h3>
+
+                    <div class="form-group">
+                        <label class="form-label">Full Address / Location *</label>
+                        <input class="form-control" th:field="*{location}" type="text"
+                               placeholder="e.g. Near Osmania University, Hyderabad" required/>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">City</label>
+                            <input class="form-control" th:field="*{city}" type="text"
+                                   placeholder="e.g. Hyderabad"/>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">State</label>
+                            <input class="form-control" th:field="*{state}" type="text"
+                                   placeholder="e.g. Telangana"/>
+                        </div>
+                    </div>
+
+                    <!-- Pricing & Sharing -->
+                    <h3 style="margin:1.2rem 0 1rem;color:#1a3c5e">💰 Pricing & Sharing</h3>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Sharing Type *</label>
+                            <select class="form-control" th:field="*{sharingType}" required>
+                                <option value="">-- Select --</option>
+                                <option th:each="s : ${sharingTypes}"
+                                        th:value="${s}"
+                                        th:text="${s.displayName}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Amount per Month (₹) *</label>
+                            <input class="form-control" th:field="*{amountPerMonth}" type="number"
+                                   placeholder="e.g. 5000" min="0" step="100" required/>
+                        </div>
+                    </div>
+
+                    <!-- Contact -->
+                    <div class="form-group">
+                        <label class="form-label">📞 Contact Phone Number *</label>
+                        <input class="form-control" th:field="*{phoneNumber}" type="tel"
+                               placeholder="10-digit number" pattern="[6-9][0-9]{9}" required/>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label class="form-label">📝 Hostel Description</label>
+                        <textarea class="form-control" th:field="*{description}" rows="4"
+                                  placeholder="Describe your hostel - facilities, rules, nearby landmarks..."></textarea>
+                    </div>
+
+                    <!-- Photos -->
+                    <h3 style="margin:1.2rem 0 1rem;color:#1a3c5e">📸 Hostel Photos</h3>
+                    <div class="form-group">
+                        <label class="form-label">Select Photos (Multiple files allowed)</label>
+                        <input class="form-control" type="file" name="imageFiles" multiple accept="image/*"/>
+                        <small style="color:#64748b;display:block;margin-top:0.25rem;">Upload one or more photos of the hostel to show visitors.</small>
+                    </div>
+
+                    <div class="mt-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-accent btn-lg">🏠 Add Hostel</button>
+                        <a th:href="@{/owner/dashboard}" class="btn btn-outline btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer><p>© 2024 HostelFind</p></footer>
+</body>
+</html>

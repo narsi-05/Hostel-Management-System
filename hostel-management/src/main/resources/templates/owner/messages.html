@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Messages - Owner</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <style>
+        .msg-list { display:flex; flex-direction:column; gap:0.75rem; }
+        .msg-item { background:#fff; border-radius:10px; box-shadow:var(--shadow);
+                    padding:1rem 1.2rem; display:flex; gap:1rem; align-items:flex-start; }
+        .msg-avatar { width:44px;height:44px;border-radius:50%;background:var(--primary);
+                      color:#fff;display:flex;align-items:center;justify-content:center;
+                      font-weight:700;font-size:1rem;flex-shrink:0; }
+        .msg-sender { font-weight:700;font-size:0.95rem; }
+        .msg-hostel { font-size:0.8rem;color:var(--text-mid); }
+        .msg-text   { font-size:0.9rem;color:var(--text-dark);margin-top:0.3rem; }
+        .msg-time   { font-size:0.75rem;color:var(--text-light);margin-top:0.3rem; }
+        .reply-form { background:var(--light-bg);border-radius:8px;padding:1rem;margin-top:0.5rem; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">🏠 Hostel<span>Find</span></a>
+    <div class="nav-links">
+        <a class="nav-link" th:href="@{/owner/dashboard}">Dashboard</a>
+        <a class="nav-link active">Messages</a>
+        <a class="nav-link btn-nav" th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>💬 Messages</h1>
+        <p>Visitor inquiries and conversations</p>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+    <div class="msg-list" th:if="${not #lists.isEmpty(messages)}">
+        <div class="msg-item" th:each="msg : ${messages}">
+            <div class="msg-avatar"
+                 th:text="${msg.sender.firstName.charAt(0)}"></div>
+            <div style="flex:1">
+                <div class="msg-sender" th:text="${msg.sender.fullName}"></div>
+                <div class="msg-hostel" th:if="${msg.hostel != null}">
+                    Re: <span th:text="${msg.hostel.hostelName}"></span>
+                </div>
+                <div class="msg-text" th:text="${msg.content}"></div>
+                <div class="msg-time" th:text="${#temporals.format(msg.sentAt, 'dd MMM yyyy, hh:mm a')}"></div>
+
+                <!-- Reply form (only for received messages) -->
+                <div class="reply-form" th:if="${msg.receiver.id == owner.id}">
+                    <form th:action="@{/owner/messages/reply}" method="post">
+                        <input type="hidden" name="receiverId" th:value="${msg.sender.id}"/>
+                        <div class="d-flex gap-1">
+                            <input class="form-control" type="text" name="content"
+                                   placeholder="Type your reply..." required/>
+                            <button type="submit" class="btn btn-primary">Reply</button>
+                        </div>
+                    </form>
+                </div>
+                <div th:unless="${msg.receiver.id == owner.id}"
+                     style="font-size:0.78rem;color:#94a3b8;margin-top:0.3rem">✉️ Sent by you</div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(messages)}" class="card text-center">
+        <div class="card-body">
+            <div style="font-size:3rem;margin-bottom:1rem">💬</div>
+            <h3>No Messages Yet</h3>
+            <p>When visitors contact you about your hostels, messages will appear here.</p>
+        </div>
+    </div>
+</div>
+
+<footer><p>© 2024 HostelFind</p></footer>
+</body>
+</html>

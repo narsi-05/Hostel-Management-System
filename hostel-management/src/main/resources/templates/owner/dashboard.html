@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Owner Dashboard - HostelFind</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">🏠 Hostel<span>Find</span></a>
+    <div class="nav-links">
+        <a class="nav-link" th:href="@{/owner/dashboard}">Dashboard</a>
+        <a class="nav-link" th:href="@{/owner/hostel/add}">Add Hostel</a>
+        <a class="nav-link" th:href="@{/owner/messages}">
+            Messages
+            <span th:if="${unreadMessages > 0}" style="background:#ef4444;color:#fff;border-radius:50%;
+                  padding:0 6px;font-size:0.75rem;margin-left:4px" th:text="${unreadMessages}"></span>
+        </a>
+        <a class="nav-link" th:href="@{/owner/profile}">Profile</a>
+        <a class="nav-link btn-nav" th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+
+<div class="page-wrapper">
+    <div class="sidebar-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-avatar"
+                     th:text="${owner.firstName.charAt(0)}"></div>
+                <div class="sidebar-name" th:text="${owner.fullName}"></div>
+                <div class="sidebar-role">Hostel Owner</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link active" th:href="@{/owner/dashboard}">
+                    <span class="icon">📊</span> Dashboard
+                </a>
+                <a class="sidebar-link" th:href="@{/owner/hostel/add}">
+                    <span class="icon">➕</span> Add Hostel
+                </a>
+                <a class="sidebar-link" th:href="@{/owner/messages}">
+                    <span class="icon">💬</span> Messages
+                    <span th:if="${unreadMessages > 0}" style="background:#ef4444;color:#fff;
+                          border-radius:50%;padding:0 5px;font-size:0.72rem;margin-left:auto"
+                          th:text="${unreadMessages}"></span>
+                </a>
+                <a class="sidebar-link" th:href="@{/owner/profile}">
+                    <span class="icon">👤</span> Profile
+                </a>
+                <a class="sidebar-link" th:href="@{/logout}">
+                    <span class="icon">🚪</span> Logout
+                </a>
+            </nav>
+        </aside>
+
+        <main>
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}"   class="alert alert-danger"  th:text="${errorMessage}"></div>
+
+            <div class="page-header d-flex justify-between align-center">
+                <div>
+                    <h1>Welcome, <span th:text="${owner.firstName}"></span>!</h1>
+                    <p>Manage your hostels and communicate with visitors</p>
+                </div>
+                <a th:href="@{/owner/hostel/add}" class="btn btn-accent">
+                    ➕ Add New Hostel
+                </a>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid-3 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon blue">🏠</div>
+                    <div>
+                        <div class="stat-value" th:text="${totalHostels}">0</div>
+                        <div class="stat-label">My Hostels</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon amber">💬</div>
+                    <div>
+                        <div class="stat-value" th:text="${unreadMessages}">0</div>
+                        <div class="stat-label">Unread Messages</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">📞</div>
+                    <div>
+                        <div class="stat-value" th:text="${owner.phoneNumber}">-</div>
+                        <div class="stat-label">Contact Number</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Hostels -->
+            <div class="section-title">
+                <h2>My Hostels</h2>
+            </div>
+
+            <div class="grid-2" th:if="${not #lists.isEmpty(hostels)}">
+                <div class="card hostel-card" th:each="hostel : ${hostels}">
+                    <div th:if="${hostel.photos != null and !hostel.photos.isEmpty()}">
+                        <img class="card-img"
+                             th:src="@{'/uploads/' + ${hostel.photoArray[0]}}"
+                             th:alt="${hostel.hostelName}"/>
+                    </div>
+                    <div th:unless="${hostel.photos != null and !hostel.photos.isEmpty()}"
+                         class="hostel-img-placeholder">🏠</div>
+                    <span class="hostel-type-badge" th:text="${hostel.hostelType.displayName}"></span>
+
+                    <div class="card-body">
+                        <div class="hostel-name" th:text="${hostel.hostelName}"></div>
+                        <div class="hostel-location">📍 <span th:text="${hostel.location}"></span></div>
+                        <div class="d-flex justify-between align-center mt-1">
+                            <div class="hostel-price">₹<span th:text="${hostel.amountPerMonth}"></span><span>/mo</span></div>
+                            <span class="badge badge-success" th:if="${hostel.status.name() == 'ACTIVE'}">Active</span>
+                            <span class="badge badge-warning" th:unless="${hostel.status.name() == 'ACTIVE'}">Inactive</span>
+                        </div>
+                        <div class="d-flex gap-1 mt-2">
+                            <a th:href="@{'/owner/hostel/edit/' + ${hostel.id}}"
+                               class="btn btn-outline btn-sm">✏️ Edit</a>
+                            <form th:action="@{'/owner/hostel/delete/' + ${hostel.id}}"
+                                  method="post" onsubmit="return confirm('Delete this hostel?')">
+                                <button class="btn btn-danger btn-sm" type="submit">🗑️ Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(hostels)}" class="card text-center">
+                <div class="card-body">
+                    <div style="font-size:3rem;margin-bottom:1rem">🏠</div>
+                    <h3>No Hostels Yet</h3>
+                    <p class="mb-2">Add your first hostel to start receiving inquiries from visitors.</p>
+                    <a th:href="@{/owner/hostel/add}" class="btn btn-accent">Add Your First Hostel</a>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<footer><p>© 2024 HostelFind</p></footer>
+</body>
+</html>
